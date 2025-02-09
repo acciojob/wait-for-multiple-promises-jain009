@@ -1,37 +1,33 @@
-document.addEventListener('DOMContentLoaded', () => {
-            const output = document.getElementById('output');
-            
-            function createPromise() {
-                const delayMs = Math.floor(Math.random() * 2001) + 1000; // Random between 1000-3000 ms
-                const delay = delayMs / 1000; // Convert to seconds
-                return new Promise(resolve => {
-                    setTimeout(() => resolve(delay), delayMs);
-                });
-            }
-
-            const promises = [createPromise(), createPromise(), createPromise()];
-
-            Promise.all(promises)
-                .then(results => {
-                    const totalTime = Math.max(...results);
-                    
-                    // Clear loading message
-                    output.innerHTML = '';
-                    
-                    // Add promise results
-                    results.forEach((time, index) => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>Promise ${index + 1}</td>
-                            <td>${time.toFixed(3)}</td>
-                        `;
-                        output.appendChild(row);
-                    });
-                    
-                    // Add total row
-                    const totalRow = document.createElement('tr');
-                    totalRow.innerHTML = `
-                        <td>Total</td>
-                        <td>${totalTime.toFixed(3)}</td>
-                    `;
-                    output.appendChild(totalRow);
+document.addEventListener("DOMContentLoaded", function() {
+    const outputTable = document.getElementById("output");
+    
+    // Initially display Loading row
+    outputTable.innerHTML = `<tr><td colspan="2">Loading...</td></tr>`;
+    
+    function createPromise(id) {
+        return new Promise(resolve => {
+            const time = (Math.random() * 2 + 1).toFixed(3); // Random time between 1-3 sec
+            setTimeout(() => resolve({ id, time }), time * 1000);
+        });
+    }
+    
+    const promises = [createPromise(1), createPromise(2), createPromise(3)];
+    
+    const startTime = performance.now();
+    
+    Promise.all(promises).then(results => {
+        const endTime = performance.now();
+        const totalTime = ((endTime - startTime) / 1000).toFixed(3);
+        
+        // Remove loading row
+        outputTable.innerHTML = "";
+        
+        results.forEach(result => {
+            const row = `<tr><td>Promise ${result.id}</td><td>${result.time} sec</td></tr>`;
+            outputTable.innerHTML += row;
+        });
+        
+        // Add total row
+        outputTable.innerHTML += `<tr><td>Total</td><td>${totalTime} sec</td></tr>`;
+    });
+});
